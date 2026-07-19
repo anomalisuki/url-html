@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Extractor - Futuristic UI</title>
+    <title>HTML Extractor</title>
     <style>
         :root {
             --bg-color: #050508;
@@ -151,6 +151,31 @@
             font-weight: bold;
         }
 
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-copy {
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(79, 172, 254, 0.1);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-copy:hover {
+            background: var(--neon-blue);
+            color: #000000;
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
+        }
+
         .status-badge {
             font-size: 11px;
             letter-spacing: 1px;
@@ -216,7 +241,11 @@
         <div id="result-zone" class="result-container">
             <div class="result-header">
                 <label>Extracted HTML Source</label>
-                <div class="status-badge" id="status-badge">STATUS: 200 OK</div>
+                <div class="header-actions">
+                    <!-- Tombol copy baru -->
+                    <button id="btn-copy" class="btn-copy" onclick="copyToClipboard()">Copy Source</button>
+                    <div class="status-badge" id="status-badge">STATUS: 200 OK</div>
+                </div>
             </div>
             <pre id="output-box" class="output-box"></pre>
         </div>
@@ -224,6 +253,8 @@
 </div>
 
 <script>
+    let extractedHtml = ''; // Menyimpan data mentah HTML untuk disalin
+
     async function executeRequest() {
         const urlInput = document.getElementById('target-url').value;
         const btnSubmit = document.getElementById('btn-submit');
@@ -231,13 +262,14 @@
         const resultZone = document.getElementById('result-zone');
         const outputBox = document.getElementById('output-box');
         const badge = document.getElementById('status-badge');
+        const btnCopy = document.getElementById('btn-copy');
 
         btnSubmit.disabled = true;
         loader.style.display = 'block';
         resultZone.style.display = 'none';
+        btnCopy.textContent = 'Copy Source';
 
         try {
-            // Menggunakan route relatif Vercel agar otomatis mendeteksi domain serverless
             const response = await fetch('/api/extract', {
                 method: 'POST',
                 headers: {
@@ -252,7 +284,9 @@
                 throw new Error(data.error || `HTTP error! status: ${response.status}`);
             }
 
-            outputBox.textContent = data.html || 'No HTML content returned.';
+            extractedHtml = data.html || '';
+            outputBox.textContent = extractedHtml || 'No HTML content returned.';
+            
             badge.textContent = 'STATUS: 200 OK';
             badge.style.borderColor = '#00f2fe';
             badge.style.color = '#00f2fe';
@@ -262,6 +296,7 @@
         } catch (error) {
             console.error('Extraction failed:', error);
             outputBox.textContent = `Error: ${error.message}\n\nPastikan konfigurasi routing Anda benar atau aktifkan local server.`;
+            extractedHtml = '';
             resultZone.style.display = 'block';
             
             badge.textContent = 'STATUS: FAILED';
@@ -272,6 +307,21 @@
             btnSubmit.disabled = false;
             loader.style.display = 'none';
         }
+    }
+
+    // Fungsi untuk menyalin teks ke clipboard
+    function copyToClipboard() {
+        const btnCopy = document.getElementById('btn-copy');
+        if (!extractedHtml) return;
+
+        navigator.clipboard.writeText(extractedHtml).then(() => {
+            btnCopy.textContent = 'Copied!';
+            setTimeout(() => {
+                btnCopy.textContent = 'Copy Source';
+            }, 2000);
+        }).catch(err => {
+            console.error('Gagal menyalin teks: ', err);
+        });
     }
 </script>
 
