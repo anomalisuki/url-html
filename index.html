@@ -157,7 +157,7 @@
             align-items: center;
         }
 
-        .btn-copy {
+        .btn-action {
             font-size: 11px;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -170,10 +170,23 @@
             transition: all 0.2s ease;
         }
 
-        .btn-copy:hover {
+        .btn-action:hover {
             background: var(--neon-blue);
             color: #000000;
             box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
+        }
+
+        /* Variasi warna khusus tombol preview agar kontras */
+        .btn-preview {
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        .btn-preview:hover {
+            background: var(--neon-cyan);
+            color: #000000;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
         }
 
         .status-badge {
@@ -182,9 +195,9 @@
             text-transform: uppercase;
             padding: 4px 12px;
             border-radius: 20px;
-            background: rgba(0, 242, 254, 0.1);
-            border: 1px solid var(--neon-cyan);
-            color: var(--neon-cyan);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-muted);
         }
 
         .output-box {
@@ -242,8 +255,9 @@
             <div class="result-header">
                 <label>Extracted HTML Source</label>
                 <div class="header-actions">
-                    <!-- Tombol copy baru -->
-                    <button id="btn-copy" class="btn-copy" onclick="copyToClipboard()">Copy Source</button>
+                    <!-- Tombol Preview & Copy -->
+                    <button id="btn-preview" class="btn-action btn-preview" onclick="previewHtml()">Preview</button>
+                    <button id="btn-copy" class="btn-action" onclick="copyToClipboard()">Copy Source</button>
                     <div class="status-badge" id="status-badge">STATUS: 200 OK</div>
                 </div>
             </div>
@@ -253,7 +267,7 @@
 </div>
 
 <script>
-    let extractedHtml = ''; // Menyimpan data mentah HTML untuk disalin
+    let extractedHtml = ''; 
 
     async function executeRequest() {
         const urlInput = document.getElementById('target-url').value;
@@ -309,7 +323,6 @@
         }
     }
 
-    // Fungsi untuk menyalin teks ke clipboard
     function copyToClipboard() {
         const btnCopy = document.getElementById('btn-copy');
         if (!extractedHtml) return;
@@ -322,6 +335,22 @@
         }).catch(err => {
             console.error('Gagal menyalin teks: ', err);
         });
+    }
+
+    // Fungsi baru untuk merender HTML di tab baru
+    function previewHtml() {
+        if (!extractedHtml) return;
+        
+        // Membuka tab kosong baru
+        const newWindow = window.open();
+        if (newWindow) {
+            newWindow.document.open();
+            // Menulis seluruh script HTML ke tab baru agar langsung dirender oleh browser
+            newWindow.document.write(extractedHtml);
+            newWindow.document.close();
+        } else {
+            alert('Gagal membuka preview. Pastikan pop-up blocker browser Anda dinonaktifkan.');
+        }
     }
 </script>
 
