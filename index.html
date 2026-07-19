@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Extractor - Futuristic UI</title>
+    <style>
+        :root {
+            --bg-color: #050508;
+            --panel-color: #0b0c16;
+            --neon-cyan: #00f2fe;
+            --neon-blue: #4facfe;
+            --text-main: #ffffff;
+            --text-muted: #5f758d;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                linear-gradient(rgba(0, 242, 254, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 254, 0.02) 1px, transparent 1px);
+            background-size: 25px 25px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+        }
+
+        .extractor-card {
+            background: var(--panel-color);
+            border: 1px solid rgba(0, 242, 254, 0.15);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 242, 254, 0.05);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 0;
+            margin-bottom: 5px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .input-pill {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid rgba(79, 172, 254, 0.4);
+            padding: 20px 30px;
+            font-size: 18px;
+            color: #ffffff;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .input-pill::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .input-pill:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+            background: rgba(0, 242, 254, 0.03);
+        }
+
+        .btn-pill {
+            width: 100%;
+            background: linear-gradient(135deg, #3b30e9, #6a11cb);
+            color: #ffffff;
+            border: none;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 48, 233, 0.4);
+            display: block;
+        }
+
+        .btn-pill:hover {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.5);
+            transform: translateY(-2px);
+            color: #000000;
+            font-weight: 700;
+        }
+
+        .btn-pill:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-container {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 10px;
+        }
+
+        .result-header label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--neon-cyan);
+            font-weight: bold;
+        }
+
+        .status-badge {
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        .output-box {
+            width: 100%;
+            height: 350px;
+            background: #020204;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            color: #a5b7cc;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: var(--neon-cyan);
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .loader span {
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; text-shadow: 0 0 10px var(--neon-cyan); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="extractor-card">
+        <h1>⚡ HTML Extractor</h1>
+        <div class="subtitle">API Core Requester // Cyber Subsystem</div>
+
+        <div class="form-group">
+            <input type="text" id="target-url" class="input-pill" value="https://amba-tv.vercel.app" placeholder="https:// Enter URL to convert">
+        </div>
+
+        <button id="btn-submit" class="btn-pill" onclick="executeRequest()">Convert</button>
+
+        <div id="loader" class="loader"><span>Extracting Data Stream...</span></div>
+
+        <div id="result-zone" class="result-container">
+            <div class="result-header">
+                <label>Extracted HTML Source</label>
+                <div class="status-badge" id="status-badge">STATUS: 200 OK</div>
+            </div>
+            <pre id="output-box" class="output-box"></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function executeRequest() {
+        const urlInput = document.getElementById('target-url').value;
+        const btnSubmit = document.getElementById('btn-submit');
+        const loader = document.getElementById('loader');
+        const resultZone = document.getElementById('result-zone');
+        const outputBox = document.getElementById('output-box');
+        const badge = document.getElementById('status-badge');
+
+        btnSubmit.disabled = true;
+        loader.style.display = 'block';
+        resultZone.style.display = 'none';
+
+        try {
+            // Menggunakan route relatif Vercel agar otomatis mendeteksi domain serverless
+            const response = await fetch('/api/extract', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: urlInput })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || `HTTP error! status: ${response.status}`);
+            }
+
+            outputBox.textContent = data.html || 'No HTML content returned.';
+            badge.textContent = 'STATUS: 200 OK';
+            badge.style.borderColor = '#00f2fe';
+            badge.style.color = '#00f2fe';
+            badge.style.background = 'rgba(0, 242, 254, 0.1)';
+            resultZone.style.display = 'block';
+
+        } catch (error) {
+            console.error('Extraction failed:', error);
+            outputBox.textContent = `Error: ${error.message}\n\nPastikan konfigurasi routing Anda benar atau aktifkan local server.`;
+            resultZone.style.display = 'block';
+            
+            badge.textContent = 'STATUS: FAILED';
+            badge.style.borderColor = '#ff0055';
+            badge.style.color = '#ff0055';
+            badge.style.background = 'rgba(255, 0, 85, 0.1)';
+        } finally {
+            btnSubmit.disabled = false;
+            loader.style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
