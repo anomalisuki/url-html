@@ -244,7 +244,7 @@
         <div class="subtitle">API Core Requester // Cyber Subsystem</div>
 
         <div class="form-group">
-            <input type="text" id="target-url" class="input-pill" placeholder="https:// Enter URL to convert">
+            <input type="text" id="target-url" class="input-pill" placeholder="Enter URL">
         </div>
 
         <button id="btn-submit" class="btn-pill" onclick="executeRequest()">Convert</button>
@@ -346,69 +346,6 @@
         if (newWindow) {
             newWindow.document.open();
             // Menulis seluruh script HTML ke tab baru agar langsung dirender oleh browser
-            newWindow.document.write(extractedHtml);
-            newWindow.document.close();
-        } else {
-            alert('Gagal membuka preview. Pastikan pop-up blocker browser Anda dinonaktifkan.');
-        }
-    }
-</script>
-
-</body>
-</html>
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || `HTTP error! status: ${response.status}`);
-            }
-
-            extractedHtml = data.html || '';
-            outputBox.textContent = extractedHtml || 'No HTML content returned.';
-            
-            badge.textContent = 'STATUS: 200 OK';
-            badge.style.borderColor = '#00f2fe';
-            badge.style.color = '#00f2fe';
-            badge.style.background = 'rgba(0, 242, 254, 0.1)';
-            resultZone.style.display = 'block';
-
-        } catch (error) {
-            console.error('Extraction failed:', error);
-            outputBox.textContent = `Error: ${error.message}\n\nPastikan konfigurasi routing Anda benar atau aktifkan local server.`;
-            extractedHtml = '';
-            resultZone.style.display = 'block';
-            
-            badge.textContent = 'STATUS: FAILED';
-            badge.style.borderColor = '#ff0055';
-            badge.style.color = '#ff0055';
-            badge.style.background = 'rgba(255, 0, 85, 0.1)';
-        } finally {
-            btnSubmit.disabled = false;
-            loader.style.display = 'none';
-        }
-    }
-
-    function copyToClipboard() {
-        const btnCopy = document.getElementById('btn-copy');
-        if (!extractedHtml) return;
-
-        navigator.clipboard.writeText(extractedHtml).then(() => {
-            btnCopy.textContent = 'Copied!';
-            setTimeout(() => {
-                btnCopy.textContent = 'Copy Source';
-            }, 2000);
-        }).catch(err => {
-            console.error('Gagal menyalin teks: ', err);
-        });
-    }
-
-    function previewHtml() {
-        if (!extractedHtml) return;
-        
-        const newWindow = window.open();
-        if (newWindow) {
-            newWindow.document.open();
             newWindow.document.write(extractedHtml);
             newWindow.document.close();
         } else {
