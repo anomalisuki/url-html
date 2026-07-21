@@ -176,6 +176,7 @@
             box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
         }
 
+        /* Variasi warna khusus tombol preview agar kontras */
         .btn-preview {
             background: rgba(0, 242, 254, 0.1);
             border: 1px solid var(--neon-cyan);
@@ -243,7 +244,7 @@
         <div class="subtitle">API Core Requester // Cyber Subsystem</div>
 
         <div class="form-group">
-            <input type="text" id="target-url" class="input-pill" placeholder="Enter URL to convert">
+            <input type="text" id="target-url" class="input-pill" placeholder="https:// Enter URL to convert">
         </div>
 
         <button id="btn-submit" class="btn-pill" onclick="executeRequest()">Convert</button>
@@ -254,6 +255,7 @@
             <div class="result-header">
                 <label>Extracted HTML Source</label>
                 <div class="header-actions">
+                    <!-- Tombol Preview & Copy -->
                     <button id="btn-preview" class="btn-action btn-preview" onclick="previewHtml()">Preview</button>
                     <button id="btn-copy" class="btn-action" onclick="copyToClipboard()">Copy Source</button>
                     <div class="status-badge" id="status-badge">STATUS: 200 OK</div>
@@ -268,39 +270,13 @@
     let extractedHtml = ''; 
 
     async function executeRequest() {
-        // Mengambil input dan menghilangkan spasi kosong di awal/akhir (.trim)
-        const urlInput = document.getElementById('target-url').value.trim();
+        const urlInput = document.getElementById('target-url').value;
         const btnSubmit = document.getElementById('btn-submit');
         const loader = document.getElementById('loader');
         const resultZone = document.getElementById('result-zone');
         const outputBox = document.getElementById('output-box');
         const badge = document.getElementById('status-badge');
         const btnCopy = document.getElementById('btn-copy');
-        const btnPreview = document.getElementById('btn-preview');
-
-        // Validasi jika input kosong
-        if (!urlInput) {
-            extractedHtml = '';
-            outputBox.textContent = "Error: Please enter a valid URL";
-            
-            // Konfigurasi Badge Status Menjadi Merah (Gagal)
-            badge.textContent = 'STATUS: INVALID INPUT';
-            badge.style.borderColor = '#ff0055';
-            badge.style.color = '#ff0055';
-            badge.style.background = 'rgba(255, 0, 85, 0.1)';
-            
-            // Sembunyikan tombol aksi pendukung karena tidak ada data
-            btnPreview.style.display = 'none';
-            btnCopy.style.display = 'none';
-            
-            // Tampilkan zone result untuk memperlihatkan pesan error
-            resultZone.style.display = 'block';
-            return; // Hentikan eksekusi script ke backend
-        }
-
-        // Jika input valid, tampilkan kembali tombol aksi pendukung
-        btnPreview.style.display = 'inline-block';
-        btnCopy.style.display = 'inline-block';
 
         btnSubmit.disabled = true;
         loader.style.display = 'block';
@@ -314,6 +290,72 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ url: urlInput })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || `HTTP error! status: ${response.status}`);
+            }
+
+            extractedHtml = data.html || '';
+            outputBox.textContent = extractedHtml || 'No HTML content returned.';
+            
+            badge.textContent = 'STATUS: 200 OK';
+            badge.style.borderColor = '#00f2fe';
+            badge.style.color = '#00f2fe';
+            badge.style.background = 'rgba(0, 242, 254, 0.1)';
+            resultZone.style.display = 'block';
+
+        } catch (error) {
+            console.error('Extraction failed:', error);
+            outputBox.textContent = `Error: ${error.message}\n\nPastikan konfigurasi routing Anda benar atau aktifkan local server.`;
+            extractedHtml = '';
+            resultZone.style.display = 'block';
+            
+            badge.textContent = 'STATUS: FAILED';
+            badge.style.borderColor = '#ff0055';
+            badge.style.color = '#ff0055';
+            badge.style.background = 'rgba(255, 0, 85, 0.1)';
+        } finally {
+            btnSubmit.disabled = false;
+            loader.style.display = 'none';
+        }
+    }
+
+    function copyToClipboard() {
+        const btnCopy = document.getElementById('btn-copy');
+        if (!extractedHtml) return;
+
+        navigator.clipboard.writeText(extractedHtml).then(() => {
+            btnCopy.textContent = 'Copied!';
+            setTimeout(() => {
+                btnCopy.textContent = 'Copy Source';
+            }, 2000);
+        }).catch(err => {
+            console.error('Gagal menyalin teks: ', err);
+        });
+    }
+
+    // Fungsi baru untuk merender HTML di tab baru
+    function previewHtml() {
+        if (!extractedHtml) return;
+        
+        // Membuka tab kosong baru
+        const newWindow = window.open();
+        if (newWindow) {
+            newWindow.document.open();
+            // Menulis seluruh script HTML ke tab baru agar langsung dirender oleh browser
+            newWindow.document.write(extractedHtml);
+            newWindow.document.close();
+        } else {
+            alert('Gagal membuka preview. Pastikan pop-up blocker browser Anda dinonaktifkan.');
+        }
+    }
+</script>
+
+</body>
+</html>
             });
 
             const data = await response.json();
